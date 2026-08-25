@@ -13,10 +13,20 @@ from google import genai
 from google.genai.errors import ClientError
 from sentence_transformers import SentenceTransformer
 load_dotenv()
+
+# Get Gemini API key from local .env or Streamlit Cloud Secrets
 api_key = os.getenv("GEMINI_API_KEY")
+
 if not api_key:
-    st.error("GEMINI_API_KEY is missing from your .env file.")
+    try:
+        api_key = st.secrets["GEMINI_API_KEY"]
+    except (KeyError, FileNotFoundError):
+        api_key = None
+
+if not api_key:
+    st.error("GEMINI_API_KEY is missing. Add it to Streamlit Secrets.")
     st.stop()
+
 client = genai.Client(api_key=api_key)
 GEMINI_MODEL = "gemini-3.6-flash"
 st.set_page_config(
